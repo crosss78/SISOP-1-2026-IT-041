@@ -149,7 +149,7 @@ Di bagian ``if(NR>1)`` itu untuk mengabaikan baris pertama (header) pada file CS
 ## Soal 2
 Pertama, download file ``peta-ekspedisi-amba.pdf``. Setelah berhasil, saya mengecek isi filenya, namun hanya terlihat peta saja, tidak ada informasi tambahan. Di soal, ada clue untuk mengecek filenya menggunakan command ``cat``, saya mengeceknya dan terdapat link github kemudian saya meng-*clonenya* dan di dalamnya terdapat file ``gsxtrack.json``.
 
-[image 1]
+![alt text](assets/soal_2/1.png)
 
 Seperti yang dikatakan di soal, file ``gsxtrack.json`` memuat beberapa titik lokasi dengan informasi site_name, latitude, dan lainnya. Saya membuat file ``parserkoordinat.sh`` untuk memparser koordinatnya. Isi file ``parserkoordinat.sh``:
 ```
@@ -189,7 +189,7 @@ Di bagian
 ```
 ``/^}/ {`` digunakan sebagai penanda akhir dari satu objek (node) dalam file JSON. Kemudian,  ``if(id && site && latitude && longitude)`` digunakan untuk memastikan semua data yang dibutuhkan sudah terisi sebelum dicetak. Setelah itu, hasilnya diproses dengan perintah: ``sort -u``untuk mengurutkan data berdasarkan id dan menghapus kemungkinan duplikasi data.
 
-[image 2]
+![alt text](assets/soal_2/2.png)
 
 Terakhir, proses pencarian koordinat posisi pusakanya berdasarkan clue yang diberikan. Untuk itu, saya membuat file ``nemupusaka.sh`` yang isinya:
 ```
@@ -208,12 +208,12 @@ END {
 cat posisipusaka.txt
 echo "File udah kesimpen namanya: posisipusaka.txt"
 ```
-[image 3]
+![alt text](assets/soal_2/3.png)
 
 Didapatlah koordinat pusatnyaaa dan disimpen filenya dengan nama ``posisipusaka.txt``
 
-[image 4]
+![alt text](assets/soal_2/4.png)
 
 Struktur repo soal 2:
 
-[image 5]
+![alt text](assets/soal_2/5.png)
