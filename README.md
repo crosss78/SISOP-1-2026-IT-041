@@ -8,7 +8,7 @@
 
 Pertama, download dulu file ``passenger.csv``, kemudian lihat dulu sebagian isi dari filenya menggunakan command ``cat passenger.csv | head``
 
-[image]
+![alt text](assets/soal_1/0.png)
 
 ### a. Menghitung total penumpang
 Untuk menghitung total penumpang, bisa dengan menjumlahkan keseluruhan barisnya menggunakan command:
@@ -17,7 +17,7 @@ Untuk menghitung total penumpang, bisa dengan menjumlahkan keseluruhan barisnya 
 awk 'NR>1 {count++} END{print "Jumlah seluruh penumpang KANJ adalah " count " orang"}' passenger.csv
 ```
 
-[image 1]
+![alt text](assets/soal_1/1.png)
 
 yang mana ``NR>1`` untuk memfilter header agar tidak terhitung sebagai penumpang.
 
@@ -28,7 +28,7 @@ Untuk menghitung total gerbong pada kereta, bisa dengan command:
 awk '{FS=","} NR>1 {c[$3"-"$4]++} END{print length(c)}' passenger.csv
 ```
 
-[image 2] 
+![alt text](assets/soal_1/2.png)
 
 yang mana ``{FS=","}`` untuk memisahkan kolom karena dalam file ``csv`` karakter ``koma(,)`` itu merupakan pemisah antar kolom. Kemudian, ``{c[$3"-"$4]++}`` gunanya untuk meng-increment setiap kali ada pasangan unik dari kolom ke-3 dan ke-4, di akhir, command tersebut akan mengeprint banyaknya gerbong pada kereta tersebut.
 
@@ -38,7 +38,7 @@ Untuk memastikan gerbongnya tidak ada yang duplikat, kita dapat mengeceknya meng
 awk '{FS=","} NR>1 {c[$3"-"$4]++} END{for (l in c) print l}' passenger.csv
 ```
 
-[image 3]
+![alt text](assets/soal_1/3.png)
 
 Ternyata, ``Business-Gerbong3`` terduplikat bukan karena datanya benar-benar ada dua yang sama, melainkan karena terdapat perbedaan karakter tersembunyi (whitespace) seperti spasi di awal atau akhir teks. Sehingga, untuk mendapat total gerbong yang tepat, kita dapat mengurangi ``length(c)`` dengan ``1``.
 
@@ -46,7 +46,7 @@ Ternyata, ``Business-Gerbong3`` terduplikat bukan karena datanya benar-benar ada
 awk '{FS=","} NR>1 {c[$3"-"$4]++} END{print "Jumlah gerbong penumpang KANJ adalah " length(c)-1}' passenger.csv
 ```
 
-[image 4]
+![alt text](assets/soal_1/4.png)
 
 ### c. Mengecek penumpang dengan usia tertua
 Untuk mengeceknya, dapat dengan membandingkan nilai pada kolom kedua satu per satu. Kemudian, nilai yang paling besar nantinya akan di set nama dan usianya, sebagai penumpang tertua.
@@ -55,7 +55,7 @@ Untuk mengeceknya, dapat dengan membandingkan nilai pada kolom kedua satu per sa
 awk '{FS=","} NR>1 {if($2>max){name=$1;max=$2}} END{print name " adalah penumpang kereta tertua dengan usia " max " tahun"}' passenger.csv
 ```
 
-[image 5]
+![alt text](assets/soal_1/5.png)
 
 yang menarik dari awk itu sendiri, dia dapat mendeklarasikan variabel secara langsung tanpa menginisiasinya terlebih dahulu. Jadinya, variabel ``max`` disana secara default nilainya 0, sehingga bisa langsung membandingkan kolom ke-2 satu per satu secara langsung. Kemudian, karakter ``semi-colon(;)`` itu sama saja dengan ``enter``.
 
@@ -66,7 +66,7 @@ Untuk menghitung rata ratanya dan membulatkannya, dapat menggunakan command:
 awk '{FS=","} NR>1 {count++;sum+=$2} END{printf ("Rata-rata usia penumpang adalah %.0f tahun\n", sum/count)}' passenger.csv
 ```
 
-[image 6]
+![alt text](assets/soal_1/6.png)
 
 Jika dilihat, pada proses print, itu syntaxnya sama dengan bahasa C. Di bagian, ``NR>1 {count++;sum+=$2}`` ``sum`` digunakan untuk menjumlahkan seluruh usia penumpang dan ``count`` sebagai pembaginya (total penumpang).
 
@@ -77,7 +77,7 @@ Untuk menghitungnya, kita dapat melakukan pengecekan dengan kondisi ``if ($3=="B
 awk '{FS=","} NR>1 {if ($3=="Business"){count++}} END{print "Jumlah penumpang kelas bisnis ada " count " orang"}' passenger.csv
 ```
 
-[image 7]
+![alt text](assets/soal_1/7.png)
 
 **Note:**
 
@@ -88,7 +88,7 @@ File ini dibuat untuk mempermudah penggunaan awk agar tidak terus menerus menuli
 
 ``awk -f KANJ.sh passenger.csv [a/b/c/d/e]``
 
-[image 8]
+![alt text](assets/soal_1/8.png)
 
 Isi file ``KANJ.sh``:
 ```
