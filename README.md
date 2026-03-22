@@ -217,3 +217,413 @@ Didapatlah koordinat pusatnyaaa dan disimpen filenya dengan nama ``posisipusaka.
 Struktur repo soal 2:
 
 ![alt text](assets/soal_2/5.png)
+
+## Soal 3
+Pada soal ini, saya membuat beberapa folder dan file sesuai dengan deskripsi pada soal. File ``kost_slebew.sh`` diberikan permission tambahan, yaitu ``+x`` dengan command: ``chmod +x kost_slebew.sh`` agar filenya dapat di eksekusi
+
+![alt text](assets/soal_3/1.png)
+
+Kemudian, kode dalam file ``kost_slebew.sh`` ini dibagi menjadi beberapa bagian.
+
+### • Main menu
+Secara penulisan dalam filenya, kode ini terletak di bagian paling bawah.
+```
+while true
+do
+    menu
+    echo -n "Pilih [1 - 7] : "
+    read pilih
+    
+    case $pilih in
+        1)
+        tambah_penghuni;;
+        2)
+        hapus_penghuni;;
+        3)
+        tampilkan_penghuni
+        echo "--------------------------------------------------------------"
+        awk '
+        BEGIN{FS=",";m=0}
+        NR > 1 {
+        count++
+        if ($5=="Aktif"){a++}
+        if ($5=="Menunggak"){m++}
+        }
+        END{print "AKTIF: " a "          |      MENUNGGAK: " m "          |     TOTAL: " count}
+        ' "$DATA"
+        echo "--------------------------------------------------------------"
+        ;;
+        4)
+        update;;
+        5)
+        laporan_keuangan;;
+        6)
+        kelola_cron;;
+        7)
+        echo "Keluar dari program."
+        exit;;
+        *)
+        echo "Input yang di masukkan tidak valid.";;  
+    esac
+done
+```
+
+### • Deklarasi Variabel untuk File
+Ini merupakan deklarasi variabel dari file file yang dibutuhkan agar kita tidak perlu menuliskan path lengkapnya ketika diperlukan.
+```
+DATA="data/penghuni.csv"
+LOG="log/tagihan.log"
+REKAP="rekap/laporan_bulanan.txt"
+SAMPAH="sampah/history_hapus.csv"
+```
+### • Fungsi Menu
+Untuk menampilkan tampilan utama dan opsi yang ada.
+```
+function menu() {
+    echo "=================================================="
+    echo "██╗  ██╗ ██████╗ ███████╗████████╗     ███████╗██╗     ███████╗██████╗ ███████╗██╗    ██╗"
+    echo "██║ ██╔╝██╔═══██╗██╔════╝╚══██╔══╝     ██╔════╝██║     ██╔════╝██╔══██╗██╔════╝██║    ██║"
+    echo "█████╔╝ ██║   ██║███████╗   ██║        ███████╗██║     █████╗  ██████╔╝█████╗  ██║ █╗ ██║"
+    echo "██╔═██╗ ██║   ██║╚════██║   ██║        ╚════██║██║     ██╔══╝  ██╔══██╗██╔══╝  ██║███╗██║"
+    echo "██║  ██╗╚██████╔╝███████║   ██║        ███████║███████╗███████╗██████╔╝███████╗╚███╔███╔╝"
+    echo "╚═╝  ╚═╝ ╚═════╝ ╚══════╝   ╚═╝        ╚══════╝╚══════╝╚══════╝╚═════╝ ╚══════╝ ╚══╝╚══╝"
+    echo "=================================================="
+    echo "        SISTEM MANAJEMEN KOST SLEBEW"
+    echo "=================================================="
+    echo "1. Tambah Penghuni"
+    echo "2. Hapus Penghuni"
+    echo "3. Tampilkan Penghuni"
+    echo "4. Update Status"
+    echo "5. Laporan Keuangan"
+    echo "6. Kelola Cron"
+    echo "7. Exit"
+    echo "=================================================="
+}
+```
+![alt text](assets/soal_3/2.png)
+### • Fungsi Tambah Penghuni
+Untuk input data penghuni yang akan ditambahkan dan nantinya dimasukkan ke file ``penghuni.csv``
+
+``nama``: Input nama bebas sesuai nama penghuni.
+
+``no_kamar``: Inputnya harus berupa angka yang lebih besar atau sama dengan 0. Jika kamar sudah terisi, pengguna diminta memasukkan nomor lain.
+
+``harga``: Input harus berupa angka dan bernilai lebih dari 0. Selain itu, pengguna diminta untuk input ulang.
+
+``tanggal``: Input harus sesuai format ``YYYY-MM-DD``. Sistem juga memastikan tanggal tidak melebihi tanggal saat ini.
+
+``status``: Hanya dapat diisi dengan ``Aktif`` atau ``Menunggak``. Selain itu, input akan dianggap tidak valid.
+```
+function tambah_penghuni() {
+    echo "=================================================="
+    echo "                 TAMBAH PENGHUNI                 "
+    echo "=================================================="
+    
+    #masukin nama
+    echo -n "Masukkan nama: "
+    read nama
+    
+    #masukkin no kamar
+    while true
+    do
+        echo -n "Masukkan nomor kamar: "
+        read no_kamar
+        if ! [[ $no_kamar =~ ^[0-9]+$ ]] 
+        then
+            echo "❌ Nomor kamar harus berupa angka >=0. Masukkin ulang..."
+            continue
+        fi
+
+        if grep -q ",$no_kamar," ""$DATA""
+        then
+            echo "❌ Kamar sudah diisi orang lain, cari kamar lain..."
+            continue
+        fi
+        break
+    done
+    
+    #masukin harga
+    while true
+    do
+        echo -n "Masukkan harga: "
+        read harga
+
+        if (! [[ $harga =~ ^[0-9]+$ ]]) || ([ $harga -le 0 ])
+        then
+            echo "❌ Harganya harus berupa angka > 0. Masukkin ulang..."
+            continue
+        fi
+        break
+    done
+
+    #masukin tanggal
+    while true
+    do
+        echo -n "Masukkan tanggal (YYYY-MM-DD): "
+        read tanggal
+        
+        #cek format
+        if [ $(date -d $tanggal +%F 2>/dev/null) != $tanggal ]
+        then
+            echo "❌ Format tanggal salah. Masukkin ulang..."
+            continue
+        fi
+        #cek lebih
+        if [[ $tanggal > $(date +%F) ]]
+        then
+            echo "❌Tanggal tidak boleh melebihi hari ini. Masukkin ulang..."
+            continue
+        fi
+        break
+    done
+
+    #masukkin status
+    while true
+    do
+        echo -n "Masukkin status (Aktif/Menunggak): "
+        read status
+        if [[ ($status != "Aktif") && ($status != "Menunggak") ]]
+        then
+            echo "❌ Input status cuma bisa Aktif atau Menunggak saja. Masukkin ulang..."
+            continue
+        fi
+        break
+    done
+    echo "$nama,$no_kamar,$harga,$tanggal,$status" >> "$DATA"
+    echo "✅ Penghuni $nama berhasil ditambahkan..."
+
+}
+```
+![alt text](assets/soal_3/3.png)
+
+### • Fungsi Hapus Data Penghuni
+Pertama, ditampilkan dulu data penghuninya, kemudian pengguna akan diminta untuk memasukkan nama penghuni yang akan dihapus. Setelah itu, sistem akan mengecek:
+- Jika tidak ditemukan, maka proses dibatalkan.
+- Jika ditemukan lebih dari satu data dengan nama yang sama, pengguna akan diminta memasukkan nomor kamar untuk menentukan data yang spesifik.
+
+Setelah data ditemukan:
+- Data tersebut akan dihapus dari file utama (``penghuni.csv``).
+- Data yang dihapus akan disimpan ke file arsip (``history_hapus.csv``) dengan tambahan tanggal penghapusan.
+```
+function hapus_penghuni() {
+    tampilkan_penghuni
+    
+    if [ $(wc -l < "$DATA") -le 1 ]
+    then
+        echo "Kost belum punya penghuni..."
+        return
+    fi
+
+    echo -n "Masukkan nama penghuni yang akan dihapus: "
+    read nama
+    
+    #ambil semua data dengan nama yang diinputkan
+    hasil=$(awk -v n="$nama" 'BEGIN{FS=","} $1==n {print}' "$DATA")
+    jumlah=$(echo "$hasil" | wc -l)
+
+    if [ $jumlah -gt 1 ]
+    then
+        echo "Penghuni dengan nama $nama ada lebih dari satu..."
+        echo -n "Masukkan nomor kamar: "
+        read kamar
+
+        #ambil data spesifik nama + kamar
+        data=$(awk -v n="$nama" -v k="$kamar" 'BEGIN{FS=","} $1==n && $2==k {print}' "$DATA")
+
+        if [ -z ""$DATA"" ]; then
+            echo "❌ Penghuni dengan nama dan kamar tersebut tidak ditemukan..."
+            return
+        fi
+
+        #hapus
+        awk -F, -v n="$nama" -v k=$kamar '
+        BEGIN{FS=",";OFS=","}
+        !($1==n && $2==k) {print}
+        ' "$DATA" > temp.csv && mv temp.csv "$DATA"
+    else
+        data=$hasil
+        awk -F, -v n="$nama" '
+        BEGIN{FS=",";OFS=","}
+        !($1==n) {print}
+        ' "$DATA" > temp.csv && mv temp.csv "$DATA"
+    fi
+
+    #simpen ke sampah
+    tanggal_hapus=$(date +%F)
+    echo ""$data",$tanggal_hapus" >> $SAMPAH
+
+    
+    if [ $jumlah -gt 1 ]
+    then
+        echo "Penghuni "$nama" kamar $kamar berhasil dihapus"
+    else
+        if [ -z "$nama" ]
+        then
+            echo "Tidak ada data penghuni yang dihapus"
+        else
+        echo "Penghuni $nama berhasil dihapus"
+        fi
+    fi
+}
+```
+
+![alt text](assets/soal_3/4.png)
+![alt text](assets/soal_3/5.png)
+
+### • Fungsi Tampilkan Data Penghuni
+Menampilkan data penghuni secara lengkap. Kemudian, di akhir ditampilkan total penghuni beserta status ``Aktif`` atau ``Menunggak`` (Tapi bagian ini tidak tertulis di dalam fungsinya)
+```
+function tampilkan_penghuni() {
+    echo "=============================================================="
+    echo "                DAFTAR PENGHUNI KOST SLEBEW"
+    echo "=============================================================="
+
+    printf "%-3s | %-15s | %-5s | %-10s | %-12s | %-10s\n" \
+    "No" "Nama" "Kamar" "Harga" "Tanggal" "Status"
+
+    echo "--------------------------------------------------------------"
+
+    awk '
+    BEGIN{FS=","} NR>1 {
+        printf "%-3d | %-15s | %-5s | %-10s | %-12s | %-10s\n",
+        NR-1, $1, $2, $3, $4, $5
+    }' "$DATA"
+}
+```
+![alt text](assets/soal_3/6.png)
+
+### • Fungsi Update Status Data Penghuni
+Untuk logic pada fungsi ini, mirip seperti fungsi ``hapus_penghuni``, yang membedakan disini ada input untuk mengupdate status penghuninya.
+```
+function update() {
+    tampilkan_penghuni
+    
+    if [ $(wc -l < "$DATA") -le 1 ]
+    then
+        echo "Kost belum punya penghuni..."
+        return
+    fi
+
+    echo -n "Masukkan nama penghuni yang akan diperbarui statusnya: "
+    read nama
+    
+    #ambil semua data dengan nama yang diinputkan
+    hasil=$(awk -v n="$nama" 'BEGIN{FS=","} $1==n {print}' "$DATA")
+    jumlah=$(echo "$hasil" | wc -l)
+
+    if [ $jumlah -gt 1 ]
+    then
+        echo "Penghuni dengan nama $nama ada lebih dari satu..."
+        echo -n "Masukkan nomor kamar: "
+        read kamar
+
+        #ambil data spesifik nama + kamar
+        data=$(awk -v n="$nama" -v k="$kamar" 'BEGIN{FS=","} $1==n && $2==k {print}' "$DATA")
+
+        if [ -z ""$DATA"" ]; then
+            echo "❌ Penghuni dengan nama dan kamar tersebut tidak ditemukan..."
+            return
+        fi
+    fi
+
+    while true
+    do
+        echo -n "Masukkin status (Aktif/Menunggak): "
+        read status
+        if [[ ($status != "Aktif") && ($status != "Menunggak") ]]
+        then
+            echo "❌ Input status cuma bisa Aktif atau Menunggak saja. Masukkin ulang..."
+            continue
+        fi
+        break
+    done
+
+    if [ "$jumlah" -gt 1 ]; then
+        awk -v n="$nama" -v k="$kamar" -v s="$status" '
+        BEGIN{FS=",";OFS=","}
+        {
+            if($1==n && $2==k){
+                $5=s
+            }
+            print
+        }' "$DATA" > temp.csv && mv temp.csv "$DATA"
+    else
+        awk -v n="$nama" -v s="$status" '
+        BEGIN{FS=",";OFS=","}
+        {
+            if($1==n){
+                $5=s
+            }
+            print
+        }' "$DATA" > temp.csv && mv temp.csv "$DATA"
+    fi
+
+    if [ $jumlah -gt 1 ]
+    then
+        echo "Status "$nama" kamar $kamar berhasil diperbarui"
+    else
+        if [ -z "$nama" ]
+        then
+            echo "Tidak ada data penghuni yang diperbarui"
+        else
+        echo "Status $nama berhasil diperbarui"
+        fi
+    fi
+}
+```
+![alt text](assets/soal_3/7.png)
+
+### • Fungsi Laporan Keuangan
+Fungsi ini digunakan untuk menyimpan dan menampilkan laporan keuangan kost berdasarkan data penghuni. Apabila ada penghuni yang masih menunggak, nama penghuni tersebut muncul dalam list. Kemudian, laporannya di simpan ke file ``laporan_bulanan.txt``.
+```
+function laporan_keuangan() {
+
+    echo "=================================================="
+    echo "           LAPORAN KEUANGAN KOST"
+    echo "=================================================="
+
+    if [ $(wc -l < "$DATA") -le 1 ]; then
+        echo "Kost belum punya penghuni..."
+        return
+    fi
+
+    awk '
+    BEGIN{FS=",";jml_aktif=0;jml_nunggak=0;aktif=0;nunggak=0}
+    NR>1 {
+        if($5=="Aktif"){
+            aktif += $3
+            jml_aktif++
+        }
+        else if($5=="Menunggak"){
+            nunggak += $3
+            jml_nunggak++
+            p[jml_nunggak] = $1
+        }
+    }
+    END {
+        print "Jumlah Penghuni Aktif     :", jml_aktif
+        print "Total Pemasukan Aktif     : Rp", aktif
+        print "-----------------------------------------"
+        print "Jumlah Penghuni Menunggak :", jml_nunggak
+        print "Total Tunggakan           : Rp", nunggak
+        print "-----------------------------------------"
+        print "Total Penghuni            : ", jml_aktif + jml_nunggak
+        print "Total Keseluruhan         : Rp", aktif + nunggak
+        print "-----------------------------------------"
+        print "List Nama Penghuni Menunggak:"
+        
+        if(jml_nunggak==0){
+        print "-Tidak ada penghuni menunggak-"
+        }
+        else{
+        for(i=1;i<=jml_nunggak;i++){
+            print i ". " p[i]
+            }
+        }
+
+        print "-----------------------------------------"
+        
+    }' "$DATA" > "$REKAP" && cat "$REKAP"
+}
+```
+![alt text](assets/soal_3/8.png)
