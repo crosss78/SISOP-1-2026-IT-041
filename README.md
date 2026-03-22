@@ -436,13 +436,13 @@ function hapus_penghuni() {
         fi
 
         #hapus
-        awk -F, -v n="$nama" -v k=$kamar '
+        awk -v n="$nama" -v k=$kamar '
         BEGIN{FS=",";OFS=","}
         !($1==n && $2==k) {print}
         ' "$DATA" > temp.csv && mv temp.csv "$DATA"
     else
         data=$hasil
-        awk -F, -v n="$nama" '
+        awk -v n="$nama" '
         BEGIN{FS=",";OFS=","}
         !($1==n) {print}
         ' "$DATA" > temp.csv && mv temp.csv "$DATA"
