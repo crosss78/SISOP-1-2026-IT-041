@@ -219,13 +219,13 @@ Struktur repo soal 2:
 ![alt text](assets/soal_2/5.png)
 
 ## Soal 3
-Pada soal ini, saya membuat beberapa folder dan file sesuai dengan deskripsi pada soal. File ``kost_slebew.sh`` diberikan permission tambahan, yaitu ``+x`` dengan command: ``chmod +x kost_slebew.sh`` agar filenya dapat di eksekusi
+Pada soal ini, saya membuat beberapa folder dan file sesuai dengan deskripsi pada soal. File ``kost_slebew.sh`` diberikan permission tambahan, yaitu ``+x`` dengan command: ``chmod +x kost_slebew.sh`` agar filenya dapat di eksekusi. Selain itu, saya juga menambahkan header untuk file ``penghuni.csv`` dan ``history_hapus.csv`` dengan command ``echo``.
 
 ![alt text](assets/soal_3/1.png)
 
 Kemudian, kode dalam file ``kost_slebew.sh`` ini dibagi menjadi beberapa bagian.
 
-### • Main menu
+### a. Main menu
 Secara penulisan dalam filenya, kode ini terletak di bagian paling bawah.
 ```
 while true
@@ -268,15 +268,19 @@ do
 done
 ```
 
-### • Deklarasi Variabel untuk File
-Ini merupakan deklarasi variabel dari file file yang dibutuhkan agar kita tidak perlu menuliskan path lengkapnya ketika diperlukan.
+### b. Header Bash Script dan Deklarasi Variabel untuk File
+Ini merupakan deklarasi variabel dari file file yang dibutuhkan agar kita tidak perlu menuliskan path lengkapnya ketika diperlukan. Selain itu, ditambahkan perintah: ``cd "$(dirname "$(realpath "$0")")"`` yang berfungsi untuk memastikan scriptnya selalu dijalankan dari direktori tempat script berada. Itu penting terutama saat script dijalankan melalui cron, karena cron tidak selalu menggunakan working directory yang sama.
 ```
+#!/bin/bash
+
+cd "$(dirname "$(realpath "$0")")"
+
 DATA="data/penghuni.csv"
 LOG="log/tagihan.log"
 REKAP="rekap/laporan_bulanan.txt"
 SAMPAH="sampah/history_hapus.csv"
 ```
-### • Fungsi Menu
+### c. Fungsi Menu
 Untuk menampilkan tampilan utama dan opsi yang ada.
 ```
 function menu() {
@@ -301,7 +305,7 @@ function menu() {
 }
 ```
 ![alt text](assets/soal_3/2.png)
-### • Fungsi Tambah Penghuni
+### d. Fungsi Tambah Penghuni
 Untuk input data penghuni yang akan ditambahkan dan nantinya dimasukkan ke file ``penghuni.csv``
 
 ``nama``: Input nama bebas sesuai nama penghuni.
@@ -396,7 +400,7 @@ function tambah_penghuni() {
 ```
 ![alt text](assets/soal_3/3.png)
 
-### • Fungsi Hapus Data Penghuni
+### e. Fungsi Hapus Data Penghuni
 Pertama, ditampilkan dulu data penghuninya, kemudian pengguna akan diminta untuk memasukkan nama penghuni yang akan dihapus. Setelah itu, sistem akan mengecek:
 - Jika tidak ditemukan, maka proses dibatalkan.
 - Jika ditemukan lebih dari satu data dengan nama yang sama, pengguna akan diminta memasukkan nomor kamar untuk menentukan data yang spesifik.
@@ -470,7 +474,7 @@ function hapus_penghuni() {
 ![alt text](assets/soal_3/4.png)
 ![alt text](assets/soal_3/5.png)
 
-### • Fungsi Tampilkan Data Penghuni
+### f. Fungsi Tampilkan Data Penghuni
 Menampilkan data penghuni secara lengkap. Kemudian, di akhir ditampilkan total penghuni beserta status ``Aktif`` atau ``Menunggak`` (Tapi bagian ini tidak tertulis di dalam fungsinya)
 ```
 function tampilkan_penghuni() {
@@ -492,7 +496,7 @@ function tampilkan_penghuni() {
 ```
 ![alt text](assets/soal_3/6.png)
 
-### • Fungsi Update Status Data Penghuni
+### g. Fungsi Update Status Data Penghuni
 Untuk logic pada fungsi ini, mirip seperti fungsi ``hapus_penghuni``, yang membedakan disini ada input untuk mengupdate status penghuninya.
 ```
 function update() {
@@ -573,7 +577,7 @@ function update() {
 ```
 ![alt text](assets/soal_3/7.png)
 
-### • Fungsi Laporan Keuangan
+### h. Fungsi Laporan Keuangan
 Fungsi ini digunakan untuk menyimpan dan menampilkan laporan keuangan kost berdasarkan data penghuni. Apabila ada penghuni yang masih menunggak, nama penghuni tersebut muncul dalam list. Kemudian, laporannya di simpan ke file ``laporan_bulanan.txt``.
 ```
 function laporan_keuangan() {
@@ -627,3 +631,98 @@ function laporan_keuangan() {
 }
 ```
 ![alt text](assets/soal_3/8.png)
+
+### i. Menu cron
+- Untuk manggil command dari cron
+Kode ini berfungsi untuk menglist penghuni yang menunggak dengan pengecekan bila argumennya ``--check-tagihan``. Kemudian, ``exit`` berguna untuk menghentikan script supaya tidak lanjut ke menu cron (agar ketika di simpan di file ``tagihan.log`` hanya dari hasil ``awk`` saja).
+```
+if [ "$1" == "--check-tagihan" ]
+then
+    awk -F',' '
+    NR>1 && $5=="Menunggak" {
+        waktu = strftime("%Y-%m-%d %H:%M:%S")
+        printf "[%s] TAGIHAN: %s (Kamar %s) - Menunggak Rp%s\n", waktu, $1, $2, $3
+    }
+    ' "$DATA"
+    exit
+fi
+```
+- Fungsi menu cron
+Ini seperti biasa meminta pengguna untuk menginputkan opsi, kemudian:
+
+    1. Lihat Cron Aktif
+
+        Untuk melihat cron yang aktif
+    2. Tambah Cron
+
+        Untuk menambahkan cron (jika belum ada). Jika sudah ada, cron sebelumnya akan dihapus dan diganti dengan yang baru. Kemudian, cron akan di eksekusi sesuai waktu yang dimasukkan -> menjalankan kode di atasnya (yang argumennya ``--check-tagihan``) -> menyimpannya ke file ``tagihan.log``
+    3. Hapus
+        Untuk menghapus cron yang aktif
+    4. Kembali
+        Untuk kembali ke main menu
+```
+function kelola_cron(){
+    while true
+    do
+        echo "============================="
+        echo "          KELOLA CRON        "
+        echo "============================="
+        echo "1. Lihat Cron Aktif"
+        echo "2. Tambah Cron"
+        echo "3. Hapus Cron"
+        echo "4. Kembali"
+        echo "============================="
+        echo -n "Pilih [1 - 4]: "
+        read opsi
+
+        case $opsi in
+        1)
+        if crontab -l >/dev/null 2>&1
+            then
+                crontab -l
+            else
+                echo "belum ada crontab"
+        fi
+        ;;
+        2)
+        echo -n "Masukkan jam (0-23): "
+        read jam
+        echo -n "Masukkan menit (0-59): "
+        read menit
+
+        script_path="/home/bray/sisop/modul1/praktikum/soal_3/kost_slebew.sh"
+        log_path="/home/bray/sisop/modul1/praktikum/soal_3/log/tagihan.log"
+
+        command="$script_path --check-tagihan >> $log_path 2>&1"
+
+        (
+            crontab -l 2>/dev/null | grep -v -- "--check-tagihan"
+            echo "$menit $jam * * * $command"
+        ) | crontab -
+
+        echo "✅ Cron berhasil ditambahkan!"
+        ;;
+        3)
+        if crontab -l >/dev/null 2>&1
+            then
+                crontab -r
+                echo "✅ Cron berhasil dihapus!"
+            else
+                echo "belum ada crontab"
+        fi
+        ;;
+        4)
+        break;;
+        *)
+        echo "Pilihan tidak valid";;
+        esac
+    done
+}
+```
+### Kendala
+
+Masih belum sepenuhnya memahami bagaimana cron berjalan.
+
+![alt text](assets/soal_3/9.png)
+![alt text](assets/soal_3/10.png)
+
