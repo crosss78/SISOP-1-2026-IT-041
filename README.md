@@ -719,10 +719,10 @@ function kelola_cron(){
     done
 }
 ```
+![alt text](assets/soal_3/9.png)
+
+![alt text](assets/soal_3/10.png)
 ### Kendala
 
 Masih belum sepenuhnya memahami bagaimana cron berjalan.
-
-![alt text](assets/soal_3/9.png)
-![alt text](assets/soal_3/10.png)
 
