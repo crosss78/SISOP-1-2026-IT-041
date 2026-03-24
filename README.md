@@ -434,7 +434,7 @@ function hapus_penghuni() {
         #ambil data spesifik nama + kamar
         data=$(awk -v n="$nama" -v k="$kamar" 'BEGIN{FS=","} $1==n && $2==k {print}' "$DATA")
 
-        if [ -z ""$DATA"" ]; then
+        if [ -z ""$data"" ]; then
             echo "❌ Penghuni dengan nama dan kamar tersebut tidak ditemukan..."
             return
         fi
@@ -524,7 +524,7 @@ function update() {
         #ambil data spesifik nama + kamar
         data=$(awk -v n="$nama" -v k="$kamar" 'BEGIN{FS=","} $1==n && $2==k {print}' "$DATA")
 
-        if [ -z ""$DATA"" ]; then
+        if [ -z ""$data"" ]; then
             echo "❌ Penghuni dengan nama dan kamar tersebut tidak ditemukan..."
             return
         fi
