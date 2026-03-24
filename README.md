@@ -243,7 +243,7 @@ do
         tampilkan_penghuni
         echo "--------------------------------------------------------------"
         awk '
-        BEGIN{FS=",";m=0}
+        BEGIN{FS=",";m=0;a=0}
         NR > 1 {
         count++
         if ($5=="Aktif"){a++}
@@ -411,7 +411,7 @@ Setelah data ditemukan:
 ```
 function hapus_penghuni() {
     tampilkan_penghuni
-    
+
     if [ $(wc -l < "$DATA") -le 1 ]
     then
         echo "Kost belum punya penghuni..."
@@ -636,6 +636,7 @@ function laporan_keuangan() {
 - Untuk manggil command dari cron
 Kode ini berfungsi untuk menglist penghuni yang menunggak dengan pengecekan bila argumennya ``--check-tagihan``. Kemudian, ``exit`` berguna untuk menghentikan script supaya tidak lanjut ke menu cron (agar ketika di simpan di file ``tagihan.log`` hanya dari hasil ``awk`` saja).
 ```
+#BAGIAN CRON
 if [ "$1" == "--check-tagihan" ]
 then
     awk -F',' '
@@ -655,7 +656,7 @@ Ini seperti biasa meminta pengguna untuk menginputkan opsi, kemudian:
         Untuk melihat cron yang aktif
     2. Tambah Cron
 
-        Untuk menambahkan cron (jika belum ada). Jika sudah ada, cron sebelumnya akan dihapus dan diganti dengan yang baru. Kemudian, cron akan di eksekusi sesuai waktu yang dimasukkan -> menjalankan kode di atasnya (yang argumennya ``--check-tagihan``) -> menyimpannya ke file ``tagihan.log``
+        Untuk menambahkan cron (jika belum ada). Jika sudah ada, cron sebelumnya akan dihapus dan diganti dengan yang baru. Kemudian, cron akan di eksekusi sesuai waktu yang dimasukkan -> menjalankan kode di atasnya (ketika argumen $1-nya ``--check-tagihan``) -> menyimpannya ke file ``tagihan.log``
     3. Hapus
         Untuk menghapus cron yang aktif
     4. Kembali
@@ -690,8 +691,9 @@ function kelola_cron(){
         echo -n "Masukkan menit (0-59): "
         read menit
 
-        script_path="/home/bray/sisop/modul1/praktikum/soal_3/kost_slebew.sh"
-        log_path="/home/bray/sisop/modul1/praktikum/soal_3/log/tagihan.log"
+        loc=$PWD
+        script_path="$loc/kost_slebew.sh"
+        log_path="$loc/log/tagihan.log"
 
         command="$script_path --check-tagihan >> $log_path 2>&1"
 
