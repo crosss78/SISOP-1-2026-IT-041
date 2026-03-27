@@ -219,7 +219,21 @@ Struktur repo soal 2:
 ![alt text](assets/soal_2/5.png)
 
 ## Soal 3
-Pada soal ini, saya membuat beberapa folder dan file sesuai dengan deskripsi pada soal. File ``kost_slebew.sh`` diberikan permission tambahan, yaitu ``+x`` dengan command: ``chmod +x kost_slebew.sh`` agar filenya dapat di eksekusi. Selain itu, saya juga menambahkan header untuk file ``penghuni.csv`` dan ``history_hapus.csv`` dengan command ``echo``.
+Pada soal ini, saya membuat file ``kost_slebew.sh``. File ``kost_slebew.sh`` diberikan permission tambahan, yaitu ``+x`` dengan command: ``chmod +x kost_slebew.sh`` agar filenya dapat di eksekusi. Kemudian, berikut kode awal dari file ini, isinya merupakan deklarasi variabel dari file file yang dibutuhkan agar kita tidak perlu menuliskan path lengkapnya ketika diperlukan. Selain itu, ditambahkan perintah: ``cd "$(dirname "$(realpath "$0")")"`` yang berfungsi untuk memastikan scriptnya selalu dijalankan dari direktori tempat script berada. Itu penting terutama saat script dijalankan melalui cron, karena cron tidak selalu menggunakan working directory yang sama. Perintah ``mkdir data log rekap sampah >/dev/null 2>&1`` untuk membuat folder folder yang dibutuhkan dan ``touch data/penghuni.csv log/tagihan.log rekap/laporan_bulanan.txt sampah/history_hapus.csv >/dev/null 2>&1`` untuk membuat file-filenya.  ``>/dev/null 2>&1`` untuk menghilangkan/membuang notif ketika program dijalankan untuk ke-2 kalinya atau seterusnya.
+```
+#!/bin/bash
+
+cd "$(dirname "$(realpath "$0")")"
+
+mkdir data log rekap sampah >/dev/null 2>&1
+touch data/penghuni.csv log/tagihan.log rekap/laporan_bulanan.txt sampah/history_hapus.csv >/dev/null 2>&1
+
+DATA="data/penghuni.csv"
+LOG="log/tagihan.log"
+REKAP="rekap/laporan_bulanan.txt"
+SAMPAH="sampah/history_hapus.csv"
+```
+
 
 ![alt text](assets/soal_3/1.png)
 
@@ -244,10 +258,10 @@ do
         echo "--------------------------------------------------------------"
         awk '
         BEGIN{FS=",";m=0;a=0}
-        NR > 1 {
-        count++
-        if ($5=="Aktif"){a++}
-        if ($5=="Menunggak"){m++}
+        {
+            count++
+            if ($5=="Aktif"){a++}
+            if ($5=="Menunggak"){m++}
         }
         END{print "AKTIF: " a "          |      MENUNGGAK: " m "          |     TOTAL: " count}
         ' "$DATA"
@@ -268,19 +282,7 @@ do
 done
 ```
 
-### b. Header Bash Script dan Deklarasi Variabel untuk File
-Ini merupakan deklarasi variabel dari file file yang dibutuhkan agar kita tidak perlu menuliskan path lengkapnya ketika diperlukan. Selain itu, ditambahkan perintah: ``cd "$(dirname "$(realpath "$0")")"`` yang berfungsi untuk memastikan scriptnya selalu dijalankan dari direktori tempat script berada. Itu penting terutama saat script dijalankan melalui cron, karena cron tidak selalu menggunakan working directory yang sama.
-```
-#!/bin/bash
-
-cd "$(dirname "$(realpath "$0")")"
-
-DATA="data/penghuni.csv"
-LOG="log/tagihan.log"
-REKAP="rekap/laporan_bulanan.txt"
-SAMPAH="sampah/history_hapus.csv"
-```
-### c. Fungsi Menu
+### b. Fungsi Menu
 Untuk menampilkan tampilan utama dan opsi yang ada.
 ```
 function menu() {
@@ -407,7 +409,7 @@ Pertama, ditampilkan dulu data penghuninya, kemudian pengguna akan diminta untuk
 
 Setelah data ditemukan:
 - Data tersebut akan dihapus dari file utama (``penghuni.csv``).
-- Data yang dihapus akan disimpan ke file arsip (``history_hapus.csv``) dengan tambahan tanggal penghapusan.
+- Data yang dihapus akan disimpan ke file arsip (``history_hapus.csv``).
 ```
 function hapus_penghuni() {
     tampilkan_penghuni
@@ -453,8 +455,7 @@ function hapus_penghuni() {
     fi
 
     #simpen ke sampah
-    tanggal_hapus=$(date +%F)
-    echo ""$data",$tanggal_hapus" >> $SAMPAH
+    echo ""$data"" >> $SAMPAH
 
     
     if [ $jumlah -gt 1 ]
@@ -488,9 +489,9 @@ function tampilkan_penghuni() {
     echo "--------------------------------------------------------------"
 
     awk '
-    BEGIN{FS=","} NR>1 {
+    BEGIN{FS=","} {
         printf "%-3d | %-15s | %-5s | %-10s | %-12s | %-10s\n",
-        NR-1, $1, $2, $3, $4, $5
+        NR, $1, $2, $3, $4, $5
     }' "$DATA"
 }
 ```
@@ -593,7 +594,7 @@ function laporan_keuangan() {
 
     awk '
     BEGIN{FS=",";jml_aktif=0;jml_nunggak=0;aktif=0;nunggak=0}
-    NR>1 {
+    {
         if($5=="Aktif"){
             aktif += $3
             jml_aktif++
@@ -640,7 +641,7 @@ Kode ini berfungsi untuk menglist penghuni yang menunggak dengan pengecekan bila
 if [ "$1" == "--check-tagihan" ]
 then
     awk -F',' '
-    NR>1 && $5=="Menunggak" {
+    $5=="Menunggak" {
         waktu = strftime("%Y-%m-%d %H:%M:%S")
         printf "[%s] TAGIHAN: %s (Kamar %s) - Menunggak Rp%s\n", waktu, $1, $2, $3
     }
