@@ -307,7 +307,7 @@ function menu() {
 }
 ```
 ![alt text](assets/soal_3/2.png)
-### d. Fungsi Tambah Penghuni
+### c. Fungsi Tambah Penghuni
 Untuk input data penghuni yang akan ditambahkan dan nantinya dimasukkan ke file ``penghuni.csv``
 
 ``nama``: Input nama bebas sesuai nama penghuni.
@@ -402,7 +402,7 @@ function tambah_penghuni() {
 ```
 ![alt text](assets/soal_3/3.png)
 
-### e. Fungsi Hapus Data Penghuni
+### d. Fungsi Hapus Data Penghuni
 Pertama, ditampilkan dulu data penghuninya, kemudian pengguna akan diminta untuk memasukkan nama penghuni yang akan dihapus. Setelah itu, sistem akan mengecek:
 - Jika tidak ditemukan, maka proses dibatalkan.
 - Jika ditemukan lebih dari satu data dengan nama yang sama, pengguna akan diminta memasukkan nomor kamar untuk menentukan data yang spesifik.
@@ -475,7 +475,7 @@ function hapus_penghuni() {
 ![alt text](assets/soal_3/4.png)
 ![alt text](assets/soal_3/5.png)
 
-### f. Fungsi Tampilkan Data Penghuni
+### e. Fungsi Tampilkan Data Penghuni
 Menampilkan data penghuni secara lengkap. Kemudian, di akhir ditampilkan total penghuni beserta status ``Aktif`` atau ``Menunggak`` (Tapi bagian ini tidak tertulis di dalam fungsinya)
 ```
 function tampilkan_penghuni() {
@@ -497,7 +497,7 @@ function tampilkan_penghuni() {
 ```
 ![alt text](assets/soal_3/6.png)
 
-### g. Fungsi Update Status Data Penghuni
+### f. Fungsi Update Status Data Penghuni
 Untuk logic pada fungsi ini, mirip seperti fungsi ``hapus_penghuni``, yang membedakan disini ada input untuk mengupdate status penghuninya.
 ```
 function update() {
@@ -578,7 +578,7 @@ function update() {
 ```
 ![alt text](assets/soal_3/7.png)
 
-### h. Fungsi Laporan Keuangan
+### g. Fungsi Laporan Keuangan
 Fungsi ini digunakan untuk menyimpan dan menampilkan laporan keuangan kost berdasarkan data penghuni. Apabila ada penghuni yang masih menunggak, nama penghuni tersebut muncul dalam list. Kemudian, laporannya di simpan ke file ``laporan_bulanan.txt``.
 ```
 function laporan_keuangan() {
@@ -633,7 +633,7 @@ function laporan_keuangan() {
 ```
 ![alt text](assets/soal_3/8.png)
 
-### i. Menu cron
+### h. Menu cron
 - Untuk manggil command dari cron
 Kode ini berfungsi untuk menglist penghuni yang menunggak dengan pengecekan bila argumennya ``--check-tagihan``. Kemudian, ``exit`` berguna untuk menghentikan script supaya tidak lanjut ke menu cron (agar ketika di simpan di file ``tagihan.log`` hanya dari hasil ``awk`` saja).
 ```
