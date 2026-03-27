@@ -652,15 +652,20 @@ fi
 - Fungsi menu cron
 Ini seperti biasa meminta pengguna untuk menginputkan opsi, kemudian:
 
-    1. Lihat Cron Aktif
-
+   1. Lihat Cron Aktif
+  
         Untuk melihat cron yang aktif
-    2. Tambah Cron
-
+  
+   2. Tambah Cron
+  
         Untuk menambahkan cron (jika belum ada). Jika sudah ada, cron sebelumnya akan dihapus dan diganti dengan yang baru. Kemudian, cron akan di eksekusi sesuai waktu yang dimasukkan -> menjalankan kode di atasnya (ketika argumen $1-nya ``--check-tagihan``) -> menyimpannya ke file ``tagihan.log``
+  
     3. Hapus
+
         Untuk menghapus cron yang aktif
+  
     4. Kembali
+  
         Untuk kembali ke main menu
 ```
 function kelola_cron(){
