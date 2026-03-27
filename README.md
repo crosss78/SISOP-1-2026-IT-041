@@ -22,28 +22,28 @@ awk 'NR>1 {count++} END{print "Jumlah seluruh penumpang KANJ adalah " count " or
 yang mana ``NR>1`` untuk memfilter header agar tidak terhitung sebagai penumpang.
 
 ### b. Menghitung total gerbong
-Untuk menghitung total gerbong pada kereta, bisa dengan command:
+Untuk menghitung total gerbong unik yang digunakan dalam perjalanan tersebut, bisa dengan command:
 
 ```
-awk '{FS=","} NR>1 {c[$3"-"$4]++} END{print length(c)}' passenger.csv
+awk '{FS=","} NR>1 {c[$4]++} END{print length(c)}' passenger.csv
 ```
 
 ![alt text](assets/soal_1/2.png)
 
-yang mana ``{FS=","}`` untuk memisahkan kolom karena dalam file ``csv`` karakter ``koma(,)`` itu merupakan pemisah antar kolom. Kemudian, ``{c[$3"-"$4]++}`` gunanya untuk meng-increment setiap kali ada pasangan unik dari kolom ke-3 dan ke-4, di akhir, command tersebut akan mengeprint banyaknya gerbong pada kereta tersebut.
+yang mana ``{FS=","}`` untuk memisahkan kolom karena dalam file ``csv`` karakter ``koma(,)`` itu merupakan pemisah antar kolom. Kemudian, ``{c[$4]++}`` gunanya untuk meng-increment setiap kali ada gerbong unik dari kolom ke-4, di akhir, command tersebut akan mengeprint banyaknya gerbong pada kereta tersebut.
 
 Untuk memastikan gerbongnya tidak ada yang duplikat, kita dapat mengeceknya menggunakan command:
 
 ```
-awk '{FS=","} NR>1 {c[$3"-"$4]++} END{for (l in c) print l}' passenger.csv
+awk '{FS=","} NR>1 {c[$4]++} END{for (l in c) print l}' passenger.csv
 ```
 
 ![alt text](assets/soal_1/3.png)
 
-Ternyata, ``Business-Gerbong3`` terduplikat bukan karena datanya benar-benar ada dua yang sama, melainkan karena terdapat perbedaan karakter tersembunyi (whitespace) seperti spasi di awal atau akhir teks. Sehingga, untuk mendapat total gerbong yang tepat, kita dapat mengurangi ``length(c)`` dengan ``1``.
+Ternyata, ``Gerbong3`` terduplikat bukan karena datanya benar-benar ada dua yang sama, melainkan karena terdapat perbedaan karakter tersembunyi (whitespace) seperti spasi di awal atau akhir teks. Sehingga, untuk mendapat total gerbong yang tepat, kita dapat mengurangi ``length(c)`` dengan ``1``.
 
 ```
-awk '{FS=","} NR>1 {c[$3"-"$4]++} END{print "Jumlah gerbong penumpang KANJ adalah " length(c)-1}' passenger.csv
+awk '{FS=","} NR>1 {c[$4]++} END{print "Jumlah gerbong penumpang KANJ adalah " length(c)-1}' passenger.csv
 ```
 
 ![alt text](assets/soal_1/4.png)
@@ -60,10 +60,10 @@ awk '{FS=","} NR>1 {if($2>max){name=$1;max=$2}} END{print name " adalah penumpan
 yang menarik dari awk itu sendiri, dia dapat mendeklarasikan variabel secara langsung tanpa menginisiasinya terlebih dahulu. Jadinya, variabel ``max`` disana secara default nilainya 0, sehingga bisa langsung membandingkan kolom ke-2 satu per satu secara langsung. Kemudian, karakter ``semi-colon(;)`` itu sama saja dengan ``enter``.
 
 ### d. Menghitung rata rata usia penumpang
-Untuk menghitung rata ratanya dan membulatkannya, dapat menggunakan command:
+Untuk menghitung rata ratanya dan membulatkannya (ke bawah), dapat menggunakan command:
 
 ```
-awk '{FS=","} NR>1 {count++;sum+=$2} END{printf ("Rata-rata usia penumpang adalah %.0f tahun\n", sum/count)}' passenger.csv
+awk '{FS=","} NR>1 {count++;sum+=$2} END{printf ("Rata-rata usia penumpang adalah %d tahun\n", sum/count)}' passenger.csv
 ```
 
 ![alt text](assets/soal_1/6.png)
@@ -106,7 +106,7 @@ BEGIN {
         count++
     }
     else if (opsi == "b"){
-        c[$3"-"$4]++
+        c[$4]++
     }
     else if (opsi == "c"){
         if($2>max){name=$1;max=$2}
@@ -130,13 +130,13 @@ END {
         print "Jumlah seluruh penumpang KANJ adalah " count " orang"
     }
     else if (opsi == "b"){
-        print "Jumlah gerbong penumpang KANJ adalah " length(c)-1
+        print "Jumlah gerbong penumpang KANJ adalah " length(c)-1 
     }
     else if (opsi == "c"){
         print name " adalah penumpang kereta tertua dengan usia " max " tahun"
     }
     else if (opsi == "d"){
-        printf ("Rata-rata usia penumpang adalah %.0f tahun\n", sum/count)
+        printf ("Rata-rata usia penumpang adalah %d tahun\n", sum/count)
     }
     else if (opsi == "e"){
         print "Jumlah penumpang kelas bisnis ada " count " orang"
